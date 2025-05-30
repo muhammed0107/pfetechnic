@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "sa7ti+",
+    "slug": "sa7ti-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+
+      "infoPlist": {
+        "NSMotionUsageDescription": "Cette app utilise les données de mouvement pour suivre vos pas et calories."
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/splash.png"
+    },
+    "plugins": ["expo-router", "@react-native-community/datetimepicker"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.ala17.sa7tiapp"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2d523dc4-2f77-4a55-9e40-b8ebb23c8531"
+      }
+    },
+    "owner": "ala17",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
+  }
+}
