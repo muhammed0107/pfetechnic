@@ -13,14 +13,14 @@ export default function VitalsScreen() {
   const [temperature, setTemperature] = useState(0);
   const [status, setStatus] = useState('🔄 Connexion...');
 
-  const WEBSOCKET_URL = 'ws://192.168.17.167:81'; // ⬅️ Remplace par l’IP de ton ESP32
+  const WEBSOCKET_URL = 'ws://192.168.17.167:81'; // IP de ton ESP32
+  const BACKEND_URL = 'http://192.168.1.100:5000/api/vitals'; // ⬅️ remplace par ton backend
 
+  // WebSocket pour lecture en temps réel
   useEffect(() => {
     const socket = new WebSocket(WEBSOCKET_URL);
 
-    socket.onopen = () => {
-      setStatus('✅ Connecté à l’ESP32');
-    };
+    socket.onopen = () => setStatus('✅ Connecté à l’ESP32');
 
     socket.onmessage = (event) => {
       try {
@@ -38,22 +38,41 @@ export default function VitalsScreen() {
       }
     };
 
-    socket.onerror = () => {
-      setStatus('❌ Erreur WebSocket');
-    };
+    socket.onerror = () => setStatus('❌ Erreur WebSocket');
+    socket.onclose = () => setStatus('🔌 Déconnecté');
 
-    socket.onclose = () => {
-      setStatus('🔌 Déconnecté');
-    };
-
-    return () => {
-      socket.close();
-    };
+    return () => socket.close();
   }, []);
+
+  // Envoi vers MongoDB toutes les 2 heures
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (temperature > 0 && heartRate > 0) {
+        fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            temperature,
+            bpm: heartRate,
+            timestamp: new Date().toISOString(),
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log('✅ Données envoyées à MongoDB', data);
+          })
+          .catch(err => {
+            console.error('❌ Erreur envoi MongoDB', err);
+          });
+      }
+    }, 1000 * 60 * 60 * 2); // Toutes les 2 heures
+
+    return () => clearInterval(interval);
+  }, [temperature, heartRate]);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: isDark ? '#111' : '#f5f5f5' }]}>
-      <Header title="Vital Signs" subtitle ={status} />
+      <Header title="Vital Signs" subtitle={status} />
 
       <View style={styles.content}>
         {/* CARD BPM */}
@@ -62,7 +81,7 @@ export default function VitalsScreen() {
             <Heart size={24} color="#FF6B6B" />
             <Text style={[styles.cardTitle, { color: isDark ? '#fff' : '#333' }]}>Heart Rate</Text>
           </View>
-          <Text style={[styles.value, { color: isDark ? '#fff' : '#333' }]}>{heartRate} </Text>
+          <Text style={[styles.value, { color: isDark ? '#fff' : '#333' }]}>{heartRate}</Text>
           <Text style={[styles.unit, { color: isDark ? '#bbb' : '#666' }]}>BPM</Text>
           <View style={styles.rangeContainer}>
             <Text style={[styles.rangeText, { color: isDark ? '#bbb' : '#666' }]}>Normal Range: 60-100 BPM</Text>
@@ -113,12 +132,8 @@ export default function VitalsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-  },
+  container: { flex: 1 },
+  content: { padding: 16 },
   card: {
     padding: 20,
     borderRadius: 16,
@@ -146,9 +161,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
   },
-  rangeContainer: {
-    marginTop: 16,
-  },
+  rangeContainer: { marginTop: 16 },
   rangeText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',

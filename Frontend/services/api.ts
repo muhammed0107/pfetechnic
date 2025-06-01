@@ -5,9 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 /*  CONFIG                                                                     */
 /* -------------------------------------------------------------------------- */
 
-export const SERVER_URL = 'https://back-1-oq0d.onrender.com'; // <— change ici si ton back change
+export const SERVER_URL = 'https://back-6jw0.onrender.com'; // <— change ici si ton back change
 export const API_BASE_URL = `${SERVER_URL}/api`;
-export const API_AI_URL = 'https://backend-ai-2.onrender.com';
+export const API_AI_URL = 'https://backend-ai-1-qhh4.onrender.com';
 
 /* -------------------------------------------------------------------------- */
 /*  AXIOS INSTANCES                                                            */

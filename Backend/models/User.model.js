@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
   weight: { type: Number, default: null },
   birthday: { type: Date, default: null },
   profileImage: { type: String, default: "" },
+  name: String,
+  email: { type: String, required: true, unique: true },
 });
 
 module.exports = mongoose.model("User", userSchema);
